@@ -1,0 +1,7 @@
+# Downloaded app tarballs (~400 MB, over GitHub's 100 MB limit).
+# Fetch them with: bash download_antigravity.sh
+*.tar.gz
+
+# Local Claude Code settings and scratch
+.claude/
+.playwright-mcp/
