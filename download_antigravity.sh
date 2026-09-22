@@ -3,10 +3,10 @@
 # Fetch the LATEST Linux x64 Antigravity tarballs straight from the official
 # download page - no manual copying of URLs.
 #
-# The download page (https://antigravity.google/download) is an Angular SPA and
-# the real file URLs are baked into its main-*.js bundle, with an unpredictable
-# build id in each URL (e.g. .../2.2.1-5287492581195776/...). So there is no
-# stable "latest" URL to hardcode - this script scrapes the current ones.
+# The file URLs on https://antigravity.google/download carry an unpredictable
+# build id (e.g. .../2.14.0-5449404535144448/...), so there is no stable
+# "latest" URL to hardcode - this script scrapes the current ones out of the
+# page HTML.
 #
 # Usage:
 #   bash download_antigravity.sh            # download both tarballs here
@@ -22,21 +22,18 @@ CHECK_ONLY=0
 echo "==> Reading $BASE/download"
 HTML="$(curl -fsSL --compressed "$BASE/download")"
 
-# Find the hashed Angular main bundle referenced by the page.
-MAIN_JS="$(printf '%s' "$HTML" | grep -oE 'main-[A-Za-z0-9]+\.js' | head -1)"
-[ -n "$MAIN_JS" ] || { echo "ERROR: could not find the main-*.js bundle on the page." >&2; exit 1; }
-echo "    bundle: $MAIN_JS"
-
-JS="$(curl -fsSL --compressed "$BASE/$MAIN_JS")"
+# Note: the `|| true` on each scrape matters. Under `set -e` + `pipefail` a
+# grep that matches nothing kills the script silently, before the explicit
+# error messages below ever get a chance to print.
 
 # Antigravity (agent app): storage.googleapis.com/.../antigravity-hub/.../Antigravity.tar.gz
-AG_URL="$(printf '%s' "$JS" \
-    | grep -oE 'https://storage\.googleapis\.com/antigravity-public/antigravity-hub/[^"'\'' `]+/linux-x64/Antigravity\.tar\.gz' \
-    | head -1)"
+AG_URL="$(printf '%s' "$HTML" \
+    | grep -oE 'https://storage\.googleapis\.com/antigravity-public/antigravity-hub/[^"'\'' `\\]+/linux-x64/Antigravity\.tar\.gz' \
+    | head -1 || true)"
 # Antigravity IDE: edgedl.me.gvt1.com/.../Antigravity%20IDE.tar.gz
-IDE_URL="$(printf '%s' "$JS" \
-    | grep -oE 'https://edgedl\.me\.gvt1\.com/[^"'\'' `]+/linux-x64/Antigravity%20IDE\.tar\.gz' \
-    | head -1)"
+IDE_URL="$(printf '%s' "$HTML" \
+    | grep -oE 'https://edgedl\.me\.gvt1\.com/[^"'\'' `\\]+/linux-x64/Antigravity%20IDE\.tar\.gz' \
+    | head -1 || true)"
 
 [ -n "$AG_URL" ]  || { echo "ERROR: could not extract the Antigravity URL (page layout may have changed)." >&2; exit 1; }
 [ -n "$IDE_URL" ] || { echo "ERROR: could not extract the Antigravity IDE URL (page layout may have changed)." >&2; exit 1; }

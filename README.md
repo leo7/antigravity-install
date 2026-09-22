@@ -37,12 +37,12 @@ bash download_antigravity.sh          # download both latest tarballs here
 bash download_antigravity.sh --check  # just print the current URLs/versions, no download
 ```
 
-Why a scraper and not a fixed URL: the download page is an Angular SPA and each
-file URL embeds an unpredictable build id (e.g. `.../2.2.1-5287492581195776/...`)
-that changes every release - there is no stable "latest" link to hardcode (unlike
-Cursor's download API). The script reads the current URLs off the page's JS bundle,
-so it always grabs the latest. If Google restructures the page it fails loudly, and
-you can download manually from https://antigravity.google/download instead.
+Why a scraper and not a fixed URL: each file URL embeds an unpredictable build id
+(e.g. `.../2.14.0-5449404535144448/...`) that changes every release - there is no
+stable "latest" link to hardcode (unlike Cursor's download API). The script reads
+the current URLs out of the download page's HTML, so it always grabs the latest.
+If Google restructures the page it fails loudly, and you can download manually from
+https://antigravity.google/download instead.
 
 ## Install
 
