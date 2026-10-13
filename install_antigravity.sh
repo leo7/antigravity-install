@@ -29,19 +29,30 @@ if [ "$(id -u)" -ne 0 ]; then
     exit 1
 fi
 
-for f in "$AG_TAR" "$IDE_TAR" "$SRC_DIR/antigravity.png"; do
-    [ -f "$f" ] || { echo "Missing required file: $f" >&2; exit 1; }
-done
+[ -f "$SRC_DIR/antigravity.png" ] || { echo "Missing required file: $SRC_DIR/antigravity.png" >&2; exit 1; }
+# A tarball may be absent when download_antigravity.sh skipped an app that was
+# already up to date. That app is left as installed; only a tarball for an app
+# that isn't installed yet is required.
+[ -f "$AG_TAR" ]  || [ -d "$AG_DIR" ]  || { echo "Missing required file: $AG_TAR" >&2; exit 1; }
+[ -f "$IDE_TAR" ] || [ -d "$IDE_DIR" ] || { echo "Missing required file: $IDE_TAR" >&2; exit 1; }
 
-echo "==> Installing Antigravity (agent app) -> $AG_DIR"
-rm -rf /opt/Antigravity-x64 "$AG_DIR"
-tar -xzf "$AG_TAR" -C /opt
-mv /opt/Antigravity-x64 "$AG_DIR"
+if [ -f "$AG_TAR" ]; then
+    echo "==> Installing Antigravity (agent app) -> $AG_DIR"
+    rm -rf /opt/Antigravity-x64 "$AG_DIR"
+    tar -xzf "$AG_TAR" -C /opt
+    mv /opt/Antigravity-x64 "$AG_DIR"
+else
+    echo "==> No $(basename "$AG_TAR"), keeping the installed Antigravity in $AG_DIR"
+fi
 
-echo "==> Installing Antigravity IDE -> $IDE_DIR"
-rm -rf "/opt/Antigravity IDE" "$IDE_DIR"
-tar -xzf "$IDE_TAR" -C /opt
-mv "/opt/Antigravity IDE" "$IDE_DIR"
+if [ -f "$IDE_TAR" ]; then
+    echo "==> Installing Antigravity IDE -> $IDE_DIR"
+    rm -rf "/opt/Antigravity IDE" "$IDE_DIR"
+    tar -xzf "$IDE_TAR" -C /opt
+    mv "/opt/Antigravity IDE" "$IDE_DIR"
+else
+    echo "==> No $(basename "$IDE_TAR"), keeping the installed Antigravity IDE in $IDE_DIR"
+fi
 
 # --- Electron chrome-sandbox needs root:root + setuid, or the app will
 #     refuse to start ("SUID sandbox helper ... not configured correctly").
