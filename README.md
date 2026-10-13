@@ -37,6 +37,9 @@ bash download_antigravity.sh          # download both latest tarballs here
 bash download_antigravity.sh --check  # just print the current URLs/versions, no download
 ```
 
+If an app is already installed at the latest version (or newer), the script asks
+`Download anyway? [y/N]` before fetching it. The default is No.
+
 Why a scraper and not a fixed URL: each file URL embeds an unpredictable build id
 (e.g. `.../2.14.0-5449404535144448/...`) that changes every release - there is no
 stable "latest" link to hardcode (unlike Cursor's download API). The script reads
@@ -101,6 +104,12 @@ target dir):
 bash download_antigravity.sh
 sudo bash install_antigravity.sh
 ```
+
+The installer installs each app whose tarball is in this folder. An app with no
+tarball is left as installed. **Careful with old tarballs:** the agent app
+updates itself, so a tarball left over from an earlier download can be older
+than what is installed. Installing it would downgrade the app. If you skipped
+an app at the download prompt, delete its old tarball before installing.
 
 ## Notes
 
